@@ -1,15 +1,33 @@
 import cv2
 import numpy as np
-from matplotlib import pyplot as plt
+#from matplotlib import pyplot as plt
 import os
-
 def fft(img):
-
-    dft=cv2.dft(np.float32(img),flags=cv2.DFT_COMPLEX_OUTPUT)
+    #print(img.dtype)
+    array=np.float64(img)
+    #print(array.dtype)
+    #dft=cv2.dft(array,flags=cv2.DFT_COMPLEX_OUTPUT)
+    dft=np.fft.fft2(img)
     dft_shift=np.fft.fftshift(dft)
 
-    MAS=20*np.log(cv2.magnitude(dft_shift[:,:,0],dft_shift[:,:,1]))
+    MAS=20*np.log(np.abs(dft_shift))#cv2.magnitude(dft_shift[:,:,0],dft_shift[:,:,1]))
     return MAS
+
+def DatasetPrePorocess(path4Dataset,TargetPath4Dataset):
+    FileArray=os.path.join(path4Dataset)
+    FileArray=os.listdir(FileArray)
+    if(os.path.exists(TargetPath4Dataset)==False):
+        os.mkdir(TargetPath4Dataset)
+    for i in FileArray:
+        img=cv2.imread(path4Dataset+i,1)
+
+        imgfft=fft(img)
+        print(path4Dataset,path4Dataset+i,TargetPath4Dataset+i)
+        cv2.imwrite(TargetPath4Dataset+i,imgfft)
+
+
+    print(FileArray)
+
 
 IMAGE_SIZE = 64
 def resize_with_pad(image, height=IMAGE_SIZE, width=IMAGE_SIZE):
@@ -104,7 +122,12 @@ def extract_data(path):
     return images,newlist#, labels
 
 if __name__ == '__main__':
-    img=cv2.imread('/media/rsit/Sharing/kaggle/train/HTC-1-M7/(HTC-1-M7)1.jpg',0)
-    img2=fft(img)
-    plt.subplot(121),plt.imshow(img2,cmap='gray')
-    plt.show()
+    path='/home/franciumlee/Dataset/HTC-1-M7/'
+    path_1 = '/home/franciumlee/Dataset/FFT/'
+#    img=cv2.imread(path+'(HTC-1-M7)1.jpg',0)
+#    img2=fft(img)
+#    print(img2)
+    DatasetPrePorocess(path,path_1)
+#    plt.subplot(121),plt.imshow(img2,cmap='gray')
+#    plt.show()
+
